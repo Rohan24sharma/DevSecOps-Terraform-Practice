@@ -1,10 +1,10 @@
+# resource group for virtual machine
 resource "azurerm_resource_group" "vmrgs" {
-  #   for_each = var.rgvm
   name     = "rgforvirtualmachine"
   location = "centralindia"
 }
 
-
+# virtual network to connect virtual machines to the network
 resource "azurerm_virtual_network" "vmvnet" {
   name                = "vnet-dev"
   address_space       = ["10.0.0.0/16"]
@@ -12,6 +12,7 @@ resource "azurerm_virtual_network" "vmvnet" {
   resource_group_name = azurerm_resource_group.vmrgs.name
 }
 
+# subnet inside my vnet for one of the VM
 resource "azurerm_subnet" "subnetrohan" {
   name                 = "subnetrohan"
   resource_group_name  = azurerm_resource_group.vmrgs.name
@@ -19,6 +20,7 @@ resource "azurerm_subnet" "subnetrohan" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
+# public ip that will connect VM to external internet services
 resource "azurerm_public_ip" "ip" {
   name                = "rohan-ip"
   location            = azurerm_resource_group.vmrgs.location
@@ -27,12 +29,14 @@ resource "azurerm_public_ip" "ip" {
 
 }
 
+# Network security group on the VM 
 resource "azurerm_network_security_group" "nsg" {
   name                = "rohan-nsg"
   location            = azurerm_resource_group.vmrgs.location
   resource_group_name = azurerm_resource_group.vmrgs.name
 }
 
+# ssh key configuration block for connectivity
 resource "azurerm_network_security_rule" "ssh" {
   name      = "sshallowed"
   priority  = 100
@@ -50,6 +54,7 @@ resource "azurerm_network_security_rule" "ssh" {
   network_security_group_name = azurerm_network_security_group.nsg.name
 }
 
+# Network interface card
 resource "azurerm_network_interface" "nic" {
   name                = "vm-nic"
   location            = azurerm_resource_group.vmrgs.location
@@ -71,6 +76,7 @@ resource "azurerm_network_interface_security_group_association" "nsgtonic" {
 
 }
 
+# virtual machines block
 resource "azurerm_linux_virtual_machine" "vm" {
 
   name                = "dev-vm"
